@@ -22,7 +22,6 @@ func main() {
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
 		cmd = exec.Command("cmd.exe")
-		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	} else {
 		cmd = exec.Command("/bin/sh")
 	}
