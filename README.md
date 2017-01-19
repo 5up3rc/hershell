@@ -29,7 +29,7 @@ For the ``GOOS`` and ``GOARCH`` variables, you can get the allowed values [here]
 However, some helper targets are available in the ``Makefile``:
 
 - ``windows32`` : windows 32 bits executable
-- ``windows64`` : windows 64 bits executable 
+- ``windows64`` : windows 64 bits executable
 - ``linux32`` : linux 32 bits executable
 - ``linux64`` : linux 64 bits executable
 
