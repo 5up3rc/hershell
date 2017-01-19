@@ -22,6 +22,8 @@ You can set the following environment variables:
 - ``LHOST`` : the attacker IP or domain name
 - ``LPORT`` : the listener port
 
+For the ``GOOS`` and ``GOARCH`` variables, you can get the allowed values [here](https://golang.org/doc/install/source#environment).
+
 However, some helper targets are available in the ``Makefile``:
 
 - ``windows32`` : windows 32 bits executable
