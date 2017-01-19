@@ -1,12 +1,14 @@
 # Hershell
 
 Simple TCP reverse shell written in [Go](https://golang.org).
+
 It uses TLS to secure the communications, and provide a certificate public key fingerprint pinning feature, preventing from traffic interception.
 
 ## Why ?
 
 Although meterpreter payloads are great, they are sometimes spotted by AV products.
-The goal of this project is to get a simple reverse shell, which can work on multiple systems.
+
+The goal of this project is to get a simple reverse shell, which can work on multiple systems,
 
 ## How ?
 
@@ -15,17 +17,17 @@ Since it's written in Go, you can cross compile the source for the desired archi
 To simplify things, you can use the provided Makefile.
 You can set the following environment variables:
 
-- GOOS : the target OS
-- GOARCH : the target architecture
-- LHOST : the attacker IP or domain name
-- LPORT : the listener port
+- ``GOOS`` : the target OS
+- ``GOARCH`` : the target architecture
+- ``LHOST`` : the attacker IP or domain name
+- ``LPORT`` : the listener port
 
 However, some helper targets are available in the ``Makefile``:
 
-- windows32
-- windows64
-- linux32
-- linux64
+- ``windows32`` : windows 32 bits executable
+- ``windows64`` : windows 64 bits executable 
+- ``linux32`` : linux 32 bits executable
+- ``linux64`` : linux 64 bits executable
 
 For those targets, you just need to set the ``LHOST`` and ``LPORT`` environment variables.
 
