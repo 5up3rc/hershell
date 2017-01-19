@@ -29,6 +29,8 @@ However, some helper targets are available in the ``Makefile``:
 
 For those targets, you just need to set the ``LHOST`` and ``LPORT`` environment variables.
 
+## Examples
+
 For windows:
 
 ```bash
