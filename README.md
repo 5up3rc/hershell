@@ -14,6 +14,8 @@ The goal of this project is to get a simple reverse shell, which can work on mul
 
 Since it's written in Go, you can cross compile the source for the desired architecture.
 
+### Building the payload
+
 To simplify things, you can use the provided Makefile.
 You can set the following environment variables:
 
