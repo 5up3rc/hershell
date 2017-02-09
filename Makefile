@@ -1,3 +1,4 @@
+BUILD=go build
 OUT_LINUX=hershell
 OUT_WINDOWS=hershell.exe
 SRC=hershell.go
@@ -14,19 +15,19 @@ depends:
 	cat ${SRV_KEY} >> ${SRV_PEM}
 
 shell:
-	GOOS=${GOOS} GOARCH=${GOARCH} go build ${LINUX_LDFLAGS} -o ${OUT_LINUX} ${SRC}
+	GOOS=${GOOS} GOARCH=${GOARCH} ${BUILD} ${LINUX_LDFLAGS} ${SRC}
 
 linux32:
-	GOOS=linux GOARCH=386 go build ${LINUX_LDFLAGS} -o ${OUT_LINUX} ${SRC}
+	GOOS=linux GOARCH=386 ${BUILD} ${LINUX_LDFLAGS} -o ${OUT_LINUX} ${SRC}
 
 linux64:
-	GOOS=linux GOARCH=amd64 go build ${LINUX_LDFLAGS} -o ${OUT_LINUX} ${SRC}
+	GOOS=linux GOARCH=amd64 ${BUILD} ${LINUX_LDFLAGS} -o ${OUT_LINUX} ${SRC}
 
 windows32:
-	GOOS=windows GOARCH=386 go build ${WIN_LDFLAGS} -o ${OUT_WINDOWS} ${SRC}
+	GOOS=windows GOARCH=386 ${BUILD} ${WIN_LDFLAGS} -o ${OUT_WINDOWS} ${SRC}
 
 windows64:
-	GOOS=windows GOARCH=amd64 go build ${WIN_LDFLAGS} -o ${OUT_WINDOWS} ${SRC}
+	GOOS=windows GOARCH=amd64 ${BUILD} ${WIN_LDFLAGS} -o ${OUT_WINDOWS} ${SRC}
 
 clean:
 	rm -f ${SRV_KEY} ${SRV_PEM} ${OUT_LINUX} ${OUT_WINDOWS}

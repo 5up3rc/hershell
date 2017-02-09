@@ -108,7 +108,6 @@ func GenerateCert() tls.Certificate {
 
 func Reverse(connectString string, fingerprint []byte) {
 	var (
-		cmd  *exec.Cmd
 		conn *tls.Conn
 		err  error
 	)
