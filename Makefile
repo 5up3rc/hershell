@@ -16,16 +16,16 @@ depends:
 shell:
 	GOOS=${GOOS} GOARCH=${GOARCH} go build ${LINUX_LDFLAGS} -o ${OUT_LINUX} ${SRC}
 
-linux32: depends
+linux32:
 	GOOS=linux GOARCH=386 go build ${LINUX_LDFLAGS} -o ${OUT_LINUX} ${SRC}
 
-linux64: depends
+linux64:
 	GOOS=linux GOARCH=amd64 go build ${LINUX_LDFLAGS} -o ${OUT_LINUX} ${SRC}
 
-windows32: depends
+windows32:
 	GOOS=windows GOARCH=386 go build ${WIN_LDFLAGS} -o ${OUT_WINDOWS} ${SRC}
 
-windows64: depends
+windows64:
 	GOOS=windows GOARCH=amd64 go build ${WIN_LDFLAGS} -o ${OUT_WINDOWS} ${SRC}
 
 clean:
