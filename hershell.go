@@ -22,9 +22,15 @@ import (
 )
 
 const (
-	ERR_COULD_NOT_DECODE = iota
-	ERR_HOST_UNREACHABLE = iota
-	ERR_BAD_FINGERPRINT  = iota
+	ERR_COULD_NOT_DECODE    = 1 << iota
+	ERR_HOST_UNREACHABLE    = iota
+	ERR_BAD_FINGERPRINT     = iota
+	ERR_KEY_GENERATION      = iota
+	ERR_RAND_GENERATION     = iota
+	ERR_CERT_CREATION       = iota
+	ERR_MARSHAL_PRIVATE_KEY = iota
+	ERR_X509_KEYPAIR        = iota
+	ERR_LISTEN_FAILED       = iota
 )
 
 var (
@@ -63,11 +69,11 @@ func CheckKeyPin(conn *tls.Conn, fingerprint []byte) (bool, error) {
 func GenerateCert() tls.Certificate {
 	priv, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	if err != nil {
-		os.Exit(-1)
+		os.Exit(ERR_KEY_GENERATION)
 	}
 	serialNumber, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	if err != nil {
-		os.Exit(-2)
+		os.Exit(ERR_RAND_GENERATION)
 	}
 	notBefore := time.Now()
 	notAfter := notBefore.Add(time.Hour * 24 * 365)
@@ -91,17 +97,17 @@ func GenerateCert() tls.Certificate {
 	}
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
 	if err != nil {
-		os.Exit(-4)
+		os.Exit(ERR_CERT_CREATION)
 	}
 	pemCert := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	b, err := x509.MarshalECPrivateKey(priv)
 	if err != nil {
-		os.Exit(-10)
+		os.Exit(ERR_MARSHAL_PRIVATE_KEY)
 	}
 	pemKey := pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: b})
 	certificate, err := tls.X509KeyPair(pemCert, pemKey)
 	if err != nil {
-		os.Exit(-20)
+		os.Exit(ERR_X509_KEYPAIR)
 	}
 	return certificate
 }
@@ -129,7 +135,7 @@ func Bind(addr string) {
 	config := &tls.Config{Certificates: []tls.Certificate{cert}}
 	listener, err := tls.Listen("tcp", addr, config)
 	if err != nil {
-		os.Exit(-3)
+		os.Exit(ERR_LISTEN_FAILED)
 	}
 	defer listener.Close()
 	for {
