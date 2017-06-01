@@ -1,0 +1,14 @@
+// +build windows !linux !darwin
+
+package shell
+
+import (
+	"os/exec"
+	"syscall"
+)
+
+func GetShell() *exec.Cmd {
+	cmd := exec.Command("C:\\Windows\\System32\\cmd.exe")
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	return cmd
+}

