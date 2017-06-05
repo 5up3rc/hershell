@@ -77,7 +77,7 @@ $ make linux32 LHOST=192.168.0.12 LPORT=1234
 
 For Mac OS X
 ```bash
-$ make shell GOOS=darwin GOARCH=amd64 LHOST=192.168.0.12 LPORT=1234
+$ make macos LHOST=192.168.0.12 LPORT=1234
 ```
 
 ## Listeners
