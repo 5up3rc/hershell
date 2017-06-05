@@ -75,6 +75,11 @@ $ make GOOS=linux GOARCH=amd64 LHOST=192.168.0.12 LPORT=1234
 $ make linux32 LHOST=192.168.0.12 LPORT=1234
 ```
 
+For Mac OS X
+```bash
+$ make shell GOOS=darwin GOARCH=amd64 LHOST=192.168.0.12 LPORT=1234
+```
+
 ## Listeners
 
 On the server side, you can use the openssl integrated TLS server:
