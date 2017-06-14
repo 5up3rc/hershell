@@ -11,13 +11,14 @@ import (
 	"crypto/x509/pkix"
 	"encoding/hex"
 	"encoding/pem"
-	"hershell/shell"
 	"math/big"
 	"net"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
+
+	"./shell"
 )
 
 const (
