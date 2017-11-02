@@ -1,6 +1,6 @@
 # Hershell
 
-Simple TCP bind/reverse shell written in [Go](https://golang.org).
+Simple TCP reverse shell written in [Go](https://golang.org).
 
 It uses TLS to secure the communications, and provide a certificate public key fingerprint pinning feature, preventing from traffic interception.
 
@@ -28,9 +28,8 @@ You can set the following environment variables:
 
 - ``GOOS`` : the target OS
 - ``GOARCH`` : the target architecture
-- ``LHOST`` : the attacker IP or domain name (useless for bind shells)
+- ``LHOST`` : the attacker IP or domain name
 - ``LPORT`` : the listener port
-- ``TYPE`` : type of shell you want (can be ``reverse`` or ``bind``, default is ``reverse``)
 
 For the ``GOOS`` and ``GOARCH`` variables, you can get the allowed values [here](https://golang.org/doc/install/source#environment).
 
@@ -43,6 +42,17 @@ However, some helper targets are available in the ``Makefile``:
 - ``linux64`` : builds a linux 64 bits executable
 
 For those targets, you just need to set the ``LHOST`` and ``LPORT`` environment variables.
+
+### Using the shell
+
+Once executed, you will be provided with a remote shell.
+This custom interactive shell will allow you to execute system commands through `cmd.exe` on Windows, or `/bin/sh` on UNIX machines.
+
+The following special commands are supported:
+
+* `run_shell` : drops you an system shell (allowing you, for example, to change directories)
+* `inject <base64 shellcode>` : injects a shellcode (base64 encoded) in the same process memory, and executes it (Windows only at the moment).
+* `exit` : exit gracefully
 
 ## Examples
 
