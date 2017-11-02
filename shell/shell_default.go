@@ -20,6 +20,8 @@ func ExecuteCmd(command string, conn net.Conn) {
 	cmd.Run()
 }
 
+// Placeholder to not break things.
+// Might be implemented later.
 func ExecShellcode(shellcode []byte) {
 	return
 }
