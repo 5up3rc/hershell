@@ -36,10 +36,11 @@ For the ``GOOS`` and ``GOARCH`` variables, you can get the allowed values [here]
 However, some helper targets are available in the ``Makefile``:
 
 - ``depends`` : generate the server certificate (required for the reverse shell)
-- ``windows32`` : builds a windows 32 bits executable
-- ``windows64`` : builds a windows 64 bits executable
-- ``linux32`` : builds a linux 32 bits executable
-- ``linux64`` : builds a linux 64 bits executable
+- ``windows32`` : builds a windows 32 bits executable (PE 32 bits)
+- ``windows64`` : builds a windows 64 bits executable (PE 64 bits)
+- ``linux32`` : builds a linux 32 bits executable (ELF 32 bits)
+- ``linux64`` : builds a linux 64 bits executable (ELF 64 bits)
+- ``macos`` : builds a mac os 64 bits executable (Mach-O)
 
 For those targets, you just need to set the ``LHOST`` and ``LPORT`` environment variables.
 
@@ -50,9 +51,9 @@ This custom interactive shell will allow you to execute system commands through 
 
 The following special commands are supported:
 
-* `run_shell` : drops you an system shell (allowing you, for example, to change directories)
-* `inject <base64 shellcode>` : injects a shellcode (base64 encoded) in the same process memory, and executes it (Windows only at the moment).
-* `exit` : exit gracefully
+* ``run_shell`` : drops you an system shell (allowing you, for example, to change directories)
+* ``inject <base64 shellcode>`` : injects a shellcode (base64 encoded) in the same process memory, and executes it (Windows only at the moment).
+* ``exit`` : exit gracefully
 
 ## Examples
 
