@@ -19,7 +19,6 @@ const (
 	ERR_COULD_NOT_DECODE = 1 << iota
 	ERR_HOST_UNREACHABLE = iota
 	ERR_BAD_FINGERPRINT  = iota
-	ERR_BAD_FINGERPRINT2 = iota
 )
 
 var (
