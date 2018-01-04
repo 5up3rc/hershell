@@ -52,8 +52,8 @@ This custom interactive shell will allow you to execute system commands through 
 The following special commands are supported:
 
 * ``run_shell`` : drops you an system shell (allowing you, for example, to change directories)
-* ``inject <base64 shellcode>`` : injects a shellcode (base64 encoded) in the same process memory, and executes it (Windows only at the moment).
-* ``meterpreter IP:PORT`` : connects to a multi/handler to get a stage2 reverse tcp meterpreter from metasploit, and execute the shellcode in memory.
+* ``inject <base64 shellcode>`` : injects a shellcode (base64 encoded) in the same process memory, and executes it (Windows only at the moment)
+* ``meterpreter IP:PORT`` : connects to a multi/handler to get a stage2 reverse tcp meterpreter from metasploit, and execute the shellcode in memory (Windows only at the moment)
 * ``exit`` : exit gracefully
 
 ## Examples
@@ -164,5 +164,3 @@ desktop-jcfs2ok\lab1
 
 C:\Users\lab1\Downloads>
 ```
-
-You can then use the ``sessions -u <id>`` command to upgrade to a meterpreter shell.
